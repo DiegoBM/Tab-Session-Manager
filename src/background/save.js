@@ -26,7 +26,7 @@ export async function saveCurrentSession(name, tag, property) {
 
   // When the user saves the current session, s/he's implicitly setting the active
   // session to the new session
-  await setActiveSession(session.id, session.name, session);
+  await setActiveSession(session.id, session.name, undefined, true /* no need to save as it's saved below */);
 
   return await saveSession(session);
 }
@@ -216,20 +216,30 @@ export async function updateActiveSession(withSession) {
   }
 }
 
-// Sets an internal, non-exportable setting for the currently active session
-// It's non exportable because it's value is associated to the user sessions,
-// which are not exported together with the settings.
-// Calling the function without id and name will clear the active session
-export async function setActiveSession(id, name, sessionToSave) {
+/**
+ * Sets an internal, non-exportable setting for the currently active session
+ * It's non exportable because it's value is associated to the user sessions,
+ * which are not exported together with the settings.
+ * 
+ * @param {string} id sessionId (or null to unset active session)
+ * @param {string} name session name
+ * @param {object|undefined} sessionToSave the session that should be saved, undefined will use active session
+ * @param {boolean} skipSave whether to skip autoSaveBeforeActiveSessionChange
+ */
+export async function setActiveSession(id, name, sessionToSave, skipSave) {
   // Auto-save the active session before switching to a different one (if the
   // relevant setting is enabled)
   // If no sessionToSave is passed, updateActiveSession will fetch the current session
-  if (getSettings("keepTrackOfActiveSession") && getSettings('autoSaveBeforeActiveSessionChange')) {
+  if (!skipSave && getSettings("keepTrackOfActiveSession") && getSettings('autoSaveBeforeActiveSessionChange')) {
     await updateActiveSession(sessionToSave);
   }
 
-  // Session start time for active sessions begins when the user either sets the active session
-  setSettings('activeSession', getSettings("keepTrackOfActiveSession") && id && name
-    ? {id, name, sessionStartTime: Date.now()}
-    : null);
+  let newValue = null
+  if (getSettings("keepTrackOfActiveSession") && id) {
+    newValue = { id, name, sessionStartTime: Date.now() } // Session start time for active sessions begins when the user either sets the active session
+  }
+  await setSettings(
+    'activeSession', 
+    newValue
+  );
 }

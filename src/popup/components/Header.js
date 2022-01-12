@@ -4,8 +4,9 @@ import log from "loglevel";
 import openUrl from "../actions/openUrl";
 import { getSettings } from "src/settings/settings";
 import DonationMessage from "./DonationMessage";
-import { sendUndoMessage, sendRedoMessage } from "../actions/controlSessions";
+import { sendUndoMessage, sendRedoMessage, sendActiveSessionMessage } from "../actions/controlSessions";
 import NameContainer from "./NameContainer";
+import ClearIcon from "../../options/icons/clear.svg";
 import UndoIcon from "../icons/undo.svg";
 import RedoIcon from "../icons/redo.svg";
 import HeartIcon from "../icons/heart.svg";
@@ -13,6 +14,7 @@ import CloudSyncIcon from "../icons/cloudSync.svg";
 import ExpandIcon from "../icons/expand.svg";
 import SettingsIcon from "../icons/settings.svg";
 import "../styles/Header.scss";
+import { useForceUpdate } from "../../common/hooks";
 
 const logDir = "popup/components/Header";
 
@@ -52,6 +54,7 @@ const openSessionListInTab = () => {
 
 export default props => {
   const { openModal, syncStatus, needsSync, undoStatus } = props;
+  const forceUpdate = useForceUpdate();
 
   const handleHeartClick = () => {
     openModal(browser.i18n.getMessage("donationLabel"), <DonationMessage />);
@@ -62,17 +65,21 @@ export default props => {
       message: "syncCloud"
     });
   };
+  const handleUnsetActive = async () => {
+    await sendActiveSessionMessage(null);
+    forceUpdate(); // otherwise, this component doesn't know it should update
+  };
 
   const shouldShowCloudSync = getSettings("signedInEmail");
   const syncError = syncStatus.status === "signInRequired";
 
   const shouldShowActiveSession = getSettings("keepTrackOfActiveSession");
-  let sessionName = '';
+  let activeSessionTitle = '';
+  const activeSession = getSettings("activeSession");
   if (shouldShowActiveSession) {
-    const activeSession = getSettings("activeSession");
     const activeSessionName = activeSession ? activeSession.name : '_';
     const activeSessionLabel = browser.i18n.getMessage("activeSessionLabel");
-    sessionName = `${activeSessionLabel}: ${activeSessionName}`
+    activeSessionTitle = `${activeSessionLabel}: ${activeSessionName}`
   }
 
   return (
@@ -80,10 +87,21 @@ export default props => {
       <div className="titleContainer">
         <div className="title">Tab Session Manager</div>
         {shouldShowActiveSession && (
-          <NameContainer
-            canRename={false}
-            forceTruncate={true}
-            sessionName={sessionName} />
+          <div className="activeSessionTitle">
+            <NameContainer
+              canRename={false}
+              forceTruncate={true}
+              sessionName={activeSessionTitle} />
+            {activeSession ? (
+              <button
+                className={`unsetActiveButton`}
+                onClick={handleUnsetActive}
+                title={browser.i18n.getMessage("unsetActiveLabel")}
+              >
+                <ClearIcon />
+              </button>
+            ) : null}
+          </div>
         )}
       </div>
       <div className="rightButtons">

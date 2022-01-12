@@ -22,7 +22,8 @@ import {
   removeSession,
   deleteAllSessions,
   updateSession,
-  renameSession
+  renameSession,
+  setActiveSession
 } from "./save";
 import getSessions from "./getSessions";
 import { openSession } from "./open";
@@ -126,6 +127,10 @@ const onMessageListener = async (request, sender, sendResponse) => {
       const beforeSession = await getSessions(request.session.id);
       await updateSession(request.session, request.isSendResponce);
       recordChange(beforeSession, request.session);
+      break;
+    }
+    case "activeSession": {
+      await setActiveSession(request.id, request.name, undefined, request.skipSave);
       break;
     }
     case "import":

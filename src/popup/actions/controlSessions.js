@@ -67,6 +67,16 @@ export const sendSessionUpdateMessage = async session => {
   });
 };
 
+export const sendActiveSessionMessage = async (session, skipSave) => {
+  log.log(logDir, "sendActiveSessionMessage()", session, skipSave);
+  return await browser.runtime.sendMessage({
+    message: "activeSession",
+    id: session ? session.id : null,
+    name: session ? session.name : null,
+    skipSave,
+  });
+};
+
 export const sendSesssionRenameMessage = (sessionId, sessionName) => {
   log.info(logDir, "sendSessionRenameMessage()", sessionId, sessionName);
   browser.runtime.sendMessage({
