@@ -33,7 +33,7 @@ export const sendOpenMessage = async (id, property, windowId = null) => {
     }
   }
 
-  browser.runtime.sendMessage({
+  return await browser.runtime.sendMessage({
     message: "open",
     session: openSession,
     property: property
@@ -72,7 +72,6 @@ export const sendActiveSessionMessage = async (session, skipSave) => {
   return await browser.runtime.sendMessage({
     message: "activeSession",
     id: session ? session.id : null,
-    name: session ? session.name : null,
     skipSave,
   });
 };

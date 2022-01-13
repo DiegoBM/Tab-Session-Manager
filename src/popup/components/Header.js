@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useContext, useMemo } from "react";
+import _ from "lodash";
 import browser from "webextension-polyfill";
 import log from "loglevel";
 import openUrl from "../actions/openUrl";
@@ -15,6 +16,7 @@ import ExpandIcon from "../icons/expand.svg";
 import SettingsIcon from "../icons/settings.svg";
 import "../styles/Header.scss";
 import { useForceUpdate } from "../../common/hooks";
+import { PopupContext } from "./PopupPage";
 
 const logDir = "popup/components/Header";
 
@@ -54,6 +56,7 @@ const openSessionListInTab = () => {
 
 export default props => {
   const { openModal, syncStatus, needsSync, undoStatus } = props;
+  const popupContext = useContext(PopupContext);
   const forceUpdate = useForceUpdate();
 
   const handleHeartClick = () => {
@@ -75,7 +78,12 @@ export default props => {
 
   const shouldShowActiveSession = getSettings("keepTrackOfActiveSession");
   let activeSessionTitle = '';
-  const activeSession = getSettings("activeSession");
+  const activeSessionState = getSettings("activeSession");
+  const activeSession = useMemo(
+    () => activeSessionState && _.find(popupContext.sessions, {id:activeSessionState.id}), 
+    [popupContext.sessions, activeSessionState]
+  );
+  console.debug('active session?',activeSessionState, activeSession, popupContext.sessions)
   if (shouldShowActiveSession) {
     const activeSessionName = activeSession ? activeSession.name : '_';
     const activeSessionLabel = browser.i18n.getMessage("activeSessionLabel");

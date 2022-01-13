@@ -33,6 +33,11 @@ import { makeSearchInfo } from "../../common/makeSearchInfo";
 
 const logDir = "popup/components/PopupPage";
 
+
+export const PopupContext = React.createContext({
+  sessions: []
+});
+
 export default class PopupPage extends Component {
   constructor(props) {
     super(props);
@@ -512,78 +517,82 @@ export default class PopupPage extends Component {
 
   render() {
     return (
-      <div
-        id="popupPage"
-        className={this.state.isInTab ? "isInTab" : ""}
-        onClick={this.state.menu.isOpen ? this.closeMenu : null}
-        onContextMenu={this.state.menu.isOpen ? this.closeMenu : null}
-      >
-        <Notification notification={this.state.notification} />
-        <Header
-          openModal={this.openModal}
-          openNotification={this.openNotification}
-          syncStatus={this.state.syncStatus}
-          needsSync={this.state.needsSync}
-          undoStatus={this.state.undoStatus}
-        />
-        <div id="contents">
-          <div className="column sidebar" style={{ width: `${this.state.sidebarWidth}px` }}>
-            <OptionsArea
-              sessions={this.state.sessions || []}
-              filterValue={this.state.filterValue}
-              sortValue={this.state.sortValue}
-              toggleSearchBar={this.toggleSearchBar}
-              isShowSearchBar={this.state.isShowSearchBar}
-              changeSearchWord={this.changeSearchWord}
-              changeFilter={this.changeFilterValue}
-              changeSort={this.changeSortValue}
-              optionsAreaRef={this.optionsAreaElement}
-              searchBarRef={this.searchBarElement}
-              sessionsAreaRef={this.sessionsAreaElement}
-            />
-            <Error error={this.state.error} />
-            <SessionsArea
-              sessions={this.state.sessions || []}
-              selectedSessionId={this.state.selectedSession.id || ""}
-              filterValue={this.state.filterValue}
-              sortValue={this.state.sortValue}
-              searchWords={this.state.searchWords}
-              searchedSessionIds={this.state.searchedSessionIds || []}
-              removeSession={this.removeSession}
-              selectSession={this.selectSession}
-              openMenu={this.openMenu}
-              toggleSearchBar={this.toggleSearchBar}
-              isInitSessions={this.state.isInitSessions}
-              error={this.state.error}
-              sessionsAreaRef={this.sessionsAreaElement}
-              optionsAreaRef={this.optionsAreaElement.current}
-              saveAreaRef={this.saveAreaElement.current}
-            />
-            <SaveArea
-              openMenu={this.openMenu}
-              saveSession={this.saveSession}
-              saveAreaRef={this.saveAreaElement}
-              sessionsAreaRef={this.sessionsAreaElement.current}
-            />
+      <PopupContext.Provider value={{
+        sessions: this.state.sessions
+      }}>
+        <div
+          id="popupPage"
+          className={this.state.isInTab ? "isInTab" : ""}
+          onClick={this.state.menu.isOpen ? this.closeMenu : null}
+          onContextMenu={this.state.menu.isOpen ? this.closeMenu : null}
+        >
+          <Notification notification={this.state.notification} />
+          <Header
+            openModal={this.openModal}
+            openNotification={this.openNotification}
+            syncStatus={this.state.syncStatus}
+            needsSync={this.state.needsSync}
+            undoStatus={this.state.undoStatus}
+          />
+          <div id="contents">
+            <div className="column sidebar" style={{ width: `${this.state.sidebarWidth}px` }}>
+              <OptionsArea
+                sessions={this.state.sessions || []}
+                filterValue={this.state.filterValue}
+                sortValue={this.state.sortValue}
+                toggleSearchBar={this.toggleSearchBar}
+                isShowSearchBar={this.state.isShowSearchBar}
+                changeSearchWord={this.changeSearchWord}
+                changeFilter={this.changeFilterValue}
+                changeSort={this.changeSortValue}
+                optionsAreaRef={this.optionsAreaElement}
+                searchBarRef={this.searchBarElement}
+                sessionsAreaRef={this.sessionsAreaElement}
+              />
+              <Error error={this.state.error} />
+              <SessionsArea
+                sessions={this.state.sessions || []}
+                selectedSessionId={this.state.selectedSession.id || ""}
+                filterValue={this.state.filterValue}
+                sortValue={this.state.sortValue}
+                searchWords={this.state.searchWords}
+                searchedSessionIds={this.state.searchedSessionIds || []}
+                removeSession={this.removeSession}
+                selectSession={this.selectSession}
+                openMenu={this.openMenu}
+                toggleSearchBar={this.toggleSearchBar}
+                isInitSessions={this.state.isInitSessions}
+                error={this.state.error}
+                sessionsAreaRef={this.sessionsAreaElement}
+                optionsAreaRef={this.optionsAreaElement.current}
+                saveAreaRef={this.saveAreaElement.current}
+              />
+              <SaveArea
+                openMenu={this.openMenu}
+                saveSession={this.saveSession}
+                saveAreaRef={this.saveAreaElement}
+                sessionsAreaRef={this.sessionsAreaElement.current}
+              />
+            </div>
+            <div className="column">
+              <SessionDetailsArea
+                session={this.state.selectedSession}
+                searchWords={this.state.searchedSessionIds.includes(this.state.selectedSession.id) ?
+                  this.state.searchWords : []}
+                tagList={this.state.tagList}
+                removeSession={this.removeSession}
+                removeWindow={this.removeWindow}
+                removeTab={this.removeTab}
+                openMenu={this.openMenu}
+                openModal={this.openModal}
+                closeModal={this.closeModal}
+              />
+            </div>
           </div>
-          <div className="column">
-            <SessionDetailsArea
-              session={this.state.selectedSession}
-              searchWords={this.state.searchedSessionIds.includes(this.state.selectedSession.id) ?
-                this.state.searchWords : []}
-              tagList={this.state.tagList}
-              removeSession={this.removeSession}
-              removeWindow={this.removeWindow}
-              removeTab={this.removeTab}
-              openMenu={this.openMenu}
-              openModal={this.openModal}
-              closeModal={this.closeModal}
-            />
-          </div>
+          <Menu menu={this.state.menu} />
+          <Modal modal={this.state.modal} closeModal={this.closeModal} />
         </div>
-        <Menu menu={this.state.menu} />
-        <Modal modal={this.state.modal} closeModal={this.closeModal} />
-      </div>
+      </PopupContext.Provider>
     );
   }
 }

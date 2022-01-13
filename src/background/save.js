@@ -26,7 +26,7 @@ export async function saveCurrentSession(name, tag, property) {
 
   // When the user saves the current session, s/he's implicitly setting the active
   // session to the new session
-  await setActiveSession(session.id, session.name, undefined, true /* no need to save as it's saved below */);
+  await setActiveSession(session.id, undefined, true /* no need to save as it's saved below */);
 
   return await saveSession(session);
 }
@@ -222,11 +222,10 @@ export async function updateActiveSession(withSession) {
  * which are not exported together with the settings.
  * 
  * @param {string} id sessionId (or null to unset active session)
- * @param {string} name session name
  * @param {object|undefined} sessionToSave the session that should be saved, undefined will use active session
  * @param {boolean} skipSave whether to skip autoSaveBeforeActiveSessionChange
  */
-export async function setActiveSession(id, name, sessionToSave, skipSave) {
+export async function setActiveSession(id, sessionToSave, skipSave) {
   // Auto-save the active session before switching to a different one (if the
   // relevant setting is enabled)
   // If no sessionToSave is passed, updateActiveSession will fetch the current session
@@ -236,7 +235,7 @@ export async function setActiveSession(id, name, sessionToSave, skipSave) {
 
   let newValue = null
   if (getSettings("keepTrackOfActiveSession") && id) {
-    newValue = { id, name, sessionStartTime: Date.now() } // Session start time for active sessions begins when the user either sets the active session
+    newValue = { id, sessionStartTime: Date.now() } // Session start time for active sessions begins when the user either sets the active session
   }
   await setSettings(
     'activeSession', 

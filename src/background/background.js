@@ -85,6 +85,7 @@ const init = async () => {
     const startupBehavior = getSettings("startupBehavior");
     if (startupBehavior === "previousSession") openLastSession();
     else if (startupBehavior === "startupSession") openStartupSessions();
+    else setActiveSession(null)
   }
 };
 
@@ -110,7 +111,7 @@ const onMessageListener = async (request, sender, sendResponse) => {
       return afterSession;
     case "open":
       if (request.property === "openInCurrentWindow") await autoSaveWhenOpenInCurrentWindow();
-      openSession(request.session, request.property);
+      await openSession(request.session, request.property);
       break;
     case "remove":
       const beforeSession = await getSessions(request.id);
@@ -130,7 +131,7 @@ const onMessageListener = async (request, sender, sendResponse) => {
       break;
     }
     case "activeSession": {
-      await setActiveSession(request.id, request.name, undefined, request.skipSave);
+      await setActiveSession(request.id, undefined, request.skipSave);
       break;
     }
     case "import":
