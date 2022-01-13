@@ -110,6 +110,9 @@
   "undoLabel": {
     "message": "Undo"
   },
+  "unsetActiveLabel": {
+    "message": "Unset active session"
+  },
   "redoLabel": {
     "message": "Redo"
   },
