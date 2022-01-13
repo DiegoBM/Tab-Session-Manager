@@ -11,7 +11,6 @@ export const deleteWindow = (session, winId) => {
   session = clone(session);
   session.windowsNumber--;
   session.tabsNumber -= Object.keys(session.windows[winId]).length;
-  if (session.tabsNumber <= 0) return Promise.reject();
 
   delete session.windows[winId];
   if (session.windowsInfo !== undefined) delete session.windowsInfo[winId];
@@ -23,7 +22,6 @@ export const deleteTab = (session, winId, tabId) => {
   log.info(logDir, "deleteTab()", session, winId, tabId);
   session = clone(session);
   session.tabsNumber--;
-  if (session.tabsNumber <= 0) return Promise.reject();
   const deletedTabIndex = session.windows[winId][tabId].index;
 
   delete session.windows[winId][tabId];
