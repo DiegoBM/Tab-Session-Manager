@@ -152,9 +152,9 @@ export const autoSaveWhenWindowClose = async removedWindowId => {
 export const autoSaveWhenExitBrowser = async () => {
   const tempSessions = await getSessionsByTag("temp");
   if (!tempSessions[0]) return;
-  log.info(logDir, "autoSaveWhenExitBrowser()");
-
   let session = tempSessions[0];
+  log.info(logDir, "autoSaveWhenExitBrowser()", session);
+
   if (!getSettings("useTabTitleforAutoSave"))
     session.name = browser.i18n.getMessage("browserExitSessionName");
   session.tag = ["browserExit"];
@@ -162,12 +162,12 @@ export const autoSaveWhenExitBrowser = async () => {
   session.id = uuidv4();
 
   if (getSettings('keepTrackOfActiveSession')) {
-    updateActiveSession(session);
+    await updateActiveSession(session);
   }
 
   // Clears the active session upon browser close if such setting is set
   if (getSettings('clearActiveSessionOnBrowserClose')) {
-    await setActiveSession(null);
+    await setActiveSession(null, null, true /* session is saved above */);
   }
 
   await saveSession(session);
