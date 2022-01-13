@@ -127,8 +127,10 @@ export const autoSaveWhenWindowClose = async removedWindowId => {
   }
   if (getSettings("useTabTitleforAutoSave")) {
     const activeTab = Object.values(session.windows[removedWindowId]).find(tab => tab.active);
-    session.name = activeTab.title;
-  } else {
+    if (!activeTab) log.warn('no active tab in', { session, window: session.windows[removedWindowId] })
+    else session.name = activeTab.title;
+  }
+  if (!session.name) {
     session.name = browser.i18n.getMessage("winCloseSessionName");
   }
   session.date = Date.now();
@@ -165,7 +167,7 @@ export const autoSaveWhenExitBrowser = async () => {
 
   // Clears the active session upon browser close if such setting is set
   if (getSettings('clearActiveSessionOnBrowserClose')) {
-    await setActiveSession();
+    await setActiveSession(null);
   }
 
   await saveSession(session);
