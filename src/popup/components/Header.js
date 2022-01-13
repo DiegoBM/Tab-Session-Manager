@@ -16,7 +16,7 @@ import ExpandIcon from "../icons/expand.svg";
 import SettingsIcon from "../icons/settings.svg";
 import "../styles/Header.scss";
 import { useForceUpdate } from "../../common/hooks";
-import { PopupContext } from "./PopupPage";
+import { PopupContext } from "../context/PopupContext";
 
 const logDir = "popup/components/Header";
 

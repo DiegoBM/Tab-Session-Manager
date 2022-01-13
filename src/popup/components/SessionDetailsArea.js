@@ -14,6 +14,7 @@ import MenuIcon from "../icons/menu.svg";
 import NewWindowIcon from "../icons/newWindow.svg";
 import DeleteIcon from "../icons/delete.svg";
 import "../styles/SessionDetailsArea.scss";
+import { PopupContext } from "../context/PopupContext";
 
 const getOpenButtonTitle = () => {
   const defaultBehavior = getSettings("openButtonBehavior");
@@ -30,6 +31,7 @@ const getOpenButtonTitle = () => {
 };
 
 export default class SessionDetailsArea extends Component {
+  static contextType = PopupContext;
   constructor(props) {
     super(props);
   }
@@ -43,6 +45,7 @@ export default class SessionDetailsArea extends Component {
   handleOpenClick = () => {
     const defaultBehavior = getSettings("openButtonBehavior");
     sendOpenMessage(this.props.session.id, defaultBehavior);
+    this.context.closeModal()
   };
 
   handleOpenRightClick = e => {

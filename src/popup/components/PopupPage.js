@@ -30,13 +30,9 @@ import Error from "./Error";
 import DonationMessage from "./DonationMessage";
 import "../styles/PopupPage.scss";
 import { makeSearchInfo } from "../../common/makeSearchInfo";
+import { PopupContext } from "../context/PopupContext";
 
 const logDir = "popup/components/PopupPage";
-
-
-export const PopupContext = React.createContext({
-  sessions: []
-});
 
 export default class PopupPage extends Component {
   constructor(props) {
@@ -124,7 +120,17 @@ export default class PopupPage extends Component {
     });
 
     const isInit = await browser.runtime.sendMessage({ message: "getInitState" });
-    if (!isInit) this.setState({ error: { isError: true, type: "indexedDB" } });
+    if (!isInit) {
+      this.setState({ error: { isError: true, type: "indexedDB" } });
+      const retry = async () => {
+        if (await browser.runtime.sendMessage({ message: "getInitState" })) {
+          window.location.reload();
+        } else {
+          setTimeout(retry, 500)
+        }
+      };
+      setTimeout(retry, 500)
+    }
 
     this.firstFilterValue = getSettings("filterValue");
     this.firstSelectedSessionId = getSettings("selectedSessionId");
@@ -518,7 +524,9 @@ export default class PopupPage extends Component {
   render() {
     return (
       <PopupContext.Provider value={{
-        sessions: this.state.sessions
+        sessions: this.state.sessions,
+        modalOpen: this.state.modal.isOpen,
+        closeModal: this.closeModal.bind(this),
       }}>
         <div
           id="popupPage"
