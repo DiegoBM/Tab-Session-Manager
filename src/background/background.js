@@ -85,7 +85,6 @@ const init = async () => {
     const startupBehavior = getSettings("startupBehavior");
     if (startupBehavior === "previousSession") openLastSession();
     else if (startupBehavior === "startupSession") openStartupSessions();
-    else setActiveSession(null)
   }
 };
 
